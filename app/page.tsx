@@ -40,8 +40,8 @@ export default function Kitchen() {
     {!ready ? <p role="status">Opening your kitchen…</p> : finished ? (
       <section aria-labelledby="finished-title" className="finish">
         <div className="finish-mark" aria-hidden="true">✓</div><p className="eyebrow">Kitchen · {quest.name}</p>
-        <h1 id="finished-title" ref={title} tabIndex={-1}>That’s enough.<br />You’re done.</h1>
-        <p className="intro">The quest is complete. Leave the rest for another time.</p>
+        <h1 id="finished-title" ref={title} tabIndex={-1}>Quest complete.</h1>
+        <p className="intro">You’ve reached the finish line.</p>
         <button className="quiet" onClick={() => setFinished(false)}>Back to kitchen</button>
       </section>
     ) : active ? (

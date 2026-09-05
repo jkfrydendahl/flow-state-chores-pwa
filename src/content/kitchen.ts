@@ -1,13 +1,8 @@
-// Canonical text from victory-conditions(1).docx, Kitchen rows.
-// Change guidance freely; do not change these definitions without explicit approval.
-export const victoryConditions = {
-  minimal: "Things that have a home are put away, dishes are gathered/dealt with, and any surfaces that are now clear are wiped.",
-  photoshoot: "Counters empty, table empty, dishes gone, sink presentable, floor looks okay.",
-  tidy: "Photoshoot complete, then all surfaces and fixtures properly cleaned, fronts/handles wiped, sink and stovetop cleaned, and floor thoroughly cleaned.",
-} as const;
+import { rooms } from "./rooms.ts";
+export const victoryConditions = rooms.kitchen.victory;
 export type Mode = keyof typeof victoryConditions;
 export const modeOrder: Mode[] = ["minimal", "photoshoot", "tidy"];
-type Quest = {
+export type Quest = {
   name: string; description: string; entry: string; boundary: string;
   stages: readonly { title: string; guidance: string; feedback: string }[];
 };

@@ -53,5 +53,12 @@ footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line);
 footer > span { display: block; }
 footer summary { font-weight: 400; }
 footer p { margin-top: 12px; }
+.room-toggle { margin: -16px 0 20px; }
+.room-picker { display: grid; gap: 8px; margin: 0 0 24px; }
+.room-option { display: flex; justify-content: space-between; gap: 12px; text-align: left; align-items: center; background: white; color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 13px 16px; min-height: 48px; }
+.room-option.chosen { background: var(--soft); border-color: var(--accent); }
+.room-status { font-size: .875rem; color: var(--muted); }
+.paused-card { padding: 20px; background: var(--soft); border-radius: 16px; }
+.secondary-actions { display: flex; justify-content: space-between; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
 @media (min-width: 760px) { .shell { padding-top: 44px; } .brand { margin-bottom: 50px; } }
 @media (max-width: 360px) { .shell { padding-inline: 16px; } .mode { padding: 14px; } .actions { grid-template-columns: 1fr; } }

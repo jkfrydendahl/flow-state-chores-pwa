@@ -6,7 +6,7 @@ A device-only kitchen PWA. Choose **Minimal plain**, **Photoshoot**, or **Tidy w
 
 - Kitchen only until reviewed. Start screen, quest screen, quiet completion acknowledgment and resumable pause.
 - Optional guidance; no checkboxes, scores, streaks, timers, notifications or automatic follow-on quests.
-- Exact kitchen definitions from `victory-conditions(1).docx` in `src/content/kitchen.ts`, separate from proposed routes. Do not rewrite or expand them without explicit user approval.
+- Kitchen victory conditions live in `src/content/kitchen.ts`, separate from route guidance.
 - English prototype matching the agreed copy. Mode names preserved exactly.
 
 ## Development
@@ -43,6 +43,8 @@ Versioned localStorage stores the selected mode, active/paused quest and last co
 The post-build script precaches the complete export, including hashed JavaScript and CSS. Each build has its own cache. Updates wait until existing app tabs close so cleaning is not interrupted by a reload. Reopen after closing app windows/tabs to activate an already-downloaded update. Offline availability depends on the browser retaining the cache.
 
 ## Prototype review
+
+The app version shown under **About this app** is defined in `src/lib/version.ts` using `YY.M.D.N` (for example, `26.9.5.1`). Update it for each release: increment N for additional releases on the same date, or start at 1 on a new release date. It is source-controlled rather than calculated from the current date or a page load, so an offline copy reports the version it actually contains. This display version is separate from the npm package's semantic version.
 
 On a phone: start each mode; expand guidance; pause and reload; resume; finish; reload after finishing; install and reopen offline. Check that the exact victory conditions are readable and nothing forces extra cleaning. The temporary container in Photoshoot remains a proposed method to review, not a change to its victory condition.
 

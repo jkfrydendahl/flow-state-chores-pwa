@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { modeOrder, quests, victoryConditions } from "../src/content/kitchen";
 import { initialProgress, readProgress, storageKey, transition, type Action, type Progress } from "../src/lib/progress";
+import { appVersion } from "../src/lib/version";
 
 export default function Kitchen() {
   const [progress, setProgress] = useState<Progress>(initialProgress);
@@ -69,11 +70,11 @@ export default function Kitchen() {
         <p className="eyebrow">An easy place to start</p><h1 id="kitchen-title" ref={title} tabIndex={-1}>Kitchen</h1>
         <fieldset className="modes"><legend>What fits today?</legend>{modeOrder.map(id => <label className={`mode ${progress.selected === id ? "selected" : ""}`} key={id}><input type="radio" name="mode" value={id} checked={progress.selected === id} onChange={() => act({ type: "select", mode: id })} /><span><strong>{quests[id].name}</strong><span className="mode-description">{quests[id].description}</span></span></label>)}</fieldset>
         <div className="victory preview"><h2>Your finish line</h2><p>{victoryConditions[progress.selected]}</p></div>
-        {progress.completed && <p className="completion-note" role="status">Last completed: {quests[progress.completed.mode].name} · {new Date(progress.completed.at).toLocaleDateString(undefined, { day: "numeric", month: "short" })}</p>}
-        <button className="primary wide" onClick={() => act({ type: "start" })}>Start {quest.name}</button>
+        {progress.completed && <p className="completion-note" role="status">Last completed: {progress.completed.room} · {quests[progress.completed.mode].name} · {new Date(progress.completed.at).toLocaleDateString(undefined, { day: "numeric", month: "short" })}</p>}
+        <button className="primary wide" onClick={() => act({ type: "start", room: "Kitchen" })}>Start {quest.name}</button>
       </section>
     )}
-    <footer><span>One room. A clear finish.</span><details><summary>About this app</summary><p>Progress stays on this device. Clearing browser data removes it; it does not sync to other devices.</p><p>{offlineReady ? "Ready to use offline." : "Open online to prepare offline use."}</p><p>To install, use your browser’s install option. On iPhone, open in Safari and choose Share → Add to Home Screen.</p></details></footer>
+    <footer><span>One room. A clear finish.</span><details><summary>About this app</summary><p>Version {appVersion}</p><p>Progress stays on this device. Clearing browser data removes it; it does not sync to other devices.</p><p>{offlineReady ? "Ready to use offline." : "Open online to prepare offline use."}</p><p>To install, use your browser’s install option. On iPhone, open in Safari and choose Share → Add to Home Screen.</p></details></footer>
     <noscript>This app needs JavaScript to remember your mode and quest. Enable it in your browser to start.</noscript>
   </main>;
 }

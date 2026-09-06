@@ -1,0 +1,73 @@
+:root { color-scheme: light; --ink: #14384a; --muted: #506674; --paper: #f5f8fa; --line: #ccdae1; --accent: #173d50; --soft: #e6eff4; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 1rem; line-height: 1.55; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+button, summary, input { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid #bd651b; outline-offset: 5px; }
+h1:focus { outline: none; }
+.shell { max-width: 620px; margin: 0 auto; padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom)); }
+.brand { display: flex; align-items: center; gap: 10px; margin-bottom: 42px; font-weight: 650; letter-spacing: -.02em; }
+.brand-mark { background: var(--accent); color: white; width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; font: italic 700 28px Georgia, serif; }
+.eyebrow { margin: 0 0 8px; font-size: .875rem; font-weight: 650; color: var(--muted); }
+h1 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.5rem, 8vw, 3.5rem); line-height: 1.08; font-weight: 400; letter-spacing: -.04em; margin: 0 0 28px; overflow-wrap: anywhere; }
+h2 { font-size: 1rem; margin: 0 0 6px; font-weight: 700; }
+p { margin: 0 0 16px; }
+.intro { color: var(--muted); max-width: 36ch; margin-bottom: 30px; }
+.modes { border: 0; padding: 0; margin: 0 0 24px; min-width: 0; }
+legend { margin-bottom: 12px; padding: 0; font-weight: 600; }
+.mode { display: flex; align-items: center; gap: 14px; padding: 17px 18px; border: 1px solid var(--line); border-radius: 15px; margin: 0 0 10px; background: white; cursor: pointer; }
+.mode.selected { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--soft); }
+.mode:focus-within { outline: 3px solid #bd651b; outline-offset: 3px; }
+.mode input { width: 20px; height: 20px; flex-shrink: 0; margin: 0; accent-color: var(--accent); }
+.mode strong { font-weight: 650; }
+.mode-description { display: block; font-size: .9375rem; color: var(--muted); margin-top: 3px; }
+.victory { border-left: 3px solid var(--accent); padding: 3px 0 3px 18px; margin: 25px 0 14px; }
+.victory p { margin: 0; }
+.preview { margin: 22px 0; }
+.primary, .secondary { min-height: 52px; border: 1px solid var(--accent); border-radius: 13px; padding: 13px 20px; font-weight: 650; }
+.primary { background: var(--accent); color: white; }
+.primary:hover { background: #24556c; }
+.secondary { background: transparent; color: var(--ink); }
+.secondary:hover { background: var(--soft); }
+.wide { width: 100%; }
+.actions { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 25px; }
+.entry { background: var(--soft); padding: 20px 22px; border-radius: 16px; }
+.entry > p:last-child { margin: 0; font-size: 1.125rem; }
+.stages { list-style: none; margin: 24px 0 18px; padding: 0; }
+.stages li { display: flex; align-items: center; gap: 13px; padding: 12px 0; font-weight: 600; }
+.stage-number { flex-shrink: 0; border: 1px solid var(--line); border-radius: 50%; width: 30px; height: 30px; display: grid; place-items: center; font-size: .875rem; font-weight: 500; color: var(--muted); }
+summary { cursor: pointer; padding: 12px 0; min-height: 44px; font-weight: 600; }
+.nudge { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.guidance { margin: 15px 0 24px; }
+.guidance p { margin-bottom: 8px; }
+.feedback { color: var(--muted); font-style: italic; }
+.sub-details { padding-left: 12px; }
+.boundary, .completion-note { color: var(--muted); font-size: .9375rem; }
+.boundary { margin: 16px 0; }
+.finish { padding-top: 24px; min-height: 440px; }
+.finish-mark { width: 56px; height: 56px; border: 1px solid var(--accent); border-radius: 50%; display: grid; place-items: center; font-size: 1.6rem; margin-bottom: 28px; }
+.quiet { border: 0; padding: 12px 0; background: transparent; color: var(--ink); text-decoration: underline; text-underline-offset: 4px; min-height: 48px; }
+.notice { padding: 14px; border: 1px solid #966520; border-radius: 12px; background: #fff5de; color: #634419; }
+footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .875rem; }
+footer > span { display: block; }
+footer summary { font-weight: 400; }
+footer p { margin-top: 12px; }
+.room-toggle { margin: -16px 0 20px; }
+.room-picker { display: grid; gap: 8px; margin: 0 0 24px; }
+.room-option { display: flex; justify-content: space-between; gap: 12px; text-align: left; align-items: center; background: white; color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 13px 16px; min-height: 48px; }
+.room-option.chosen { background: var(--soft); border-color: var(--accent); }
+.room-status { font-size: .875rem; color: var(--muted); }
+.paused-card { padding: 20px; background: var(--soft); border-radius: 16px; }
+.secondary-actions { display: flex; justify-content: space-between; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
+@media (min-width: 760px) { .shell { padding-top: 44px; } .brand { margin-bottom: 50px; } }
+@media (max-width: 360px) { .shell { padding-inline: 16px; } .mode { padding: 14px; } .actions { grid-template-columns: 1fr; } }
+
+.timer-option { display: flex; align-items: flex-start; gap: 14px; padding: 18px; margin: 20px 0; border: 1px solid var(--line); border-radius: 14px; background: var(--soft); cursor: pointer; }
+.timer-option:focus-within { outline: 3px solid #bd651b; outline-offset: 4px; }
+.timer-option input { width: 20px; height: 20px; flex-shrink: 0; margin-top: 4px; accent-color: var(--accent); }
+.start-timer { margin: 20px 0; padding: 18px; border: 1px solid var(--line); border-radius: 14px; }
+.timer-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+.timer-digits { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.timer-remove { margin-left: 20px; }
+.start-timer p { margin-bottom: 0; }

@@ -59,9 +59,9 @@ Automated progress checks cover legacy migration, independent paused rooms, full
 
 For phone checks: choose rooms and modes; expand guidance; pause two rooms and reload; resume one; finish or mark already done; skip a suggestion; install and reopen offline. The completion screen should name the completed room even after the rotation advances. No phone or browser visual testing is implied by a successful build.
 
-## Optional engagement
+## Optional five-minute start
 
-Expand **Make it engaging** before starting a quest. The five-minute start and the relevant room/mode challenge are independently optional and off by default. Choices are remembered on the device. Minimal plain gets a known-home rhythm, Photoshoot gets a concrete first visible win, and Tidy whitie gets a section-by-section route challenge.
+The **Five-minute start** checkbox is directly on the room-selection screen, above Start. It is off by default and remembers your preference on this device.
 
 The timer starts with the quest. Hide its digits or continue without it at any time. Pausing freezes its remaining time; resuming continues that same timer. Active timers use a saved deadline so reloads and background throttling do not restart five minutes. At expiry, the app offers Continue or Pause without marking anything complete. Continue dismisses the timer for this quest. Completion still requires the existing victory condition.
 

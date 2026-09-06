@@ -1,7 +1,7 @@
 export const fiveMinutes = 5 * 60 * 1000;
 export type StartTimer = { remainingMs: number; endsAt: number | null };
-export type Engagement = { timer: boolean; challenge: boolean; hideTimer: boolean };
-export const quietDefaults: Engagement = { timer: false, challenge: false, hideTimer: false };
+export type Engagement = { timer: boolean; hideTimer: boolean };
+export const quietDefaults: Engagement = { timer: false, hideTimer: false };
 export const remaining = (timer: StartTimer, now: number) => Math.max(0, Math.min(fiveMinutes, timer.endsAt === null ? timer.remainingMs : timer.endsAt - now));
 export const startTimer = (now: number): StartTimer => ({ remainingMs: fiveMinutes, endsAt: now + fiveMinutes });
 export const pauseTimer = (timer: StartTimer, now: number): StartTimer => ({ remainingMs: remaining(timer, now), endsAt: null });

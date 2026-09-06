@@ -4,7 +4,6 @@ import { modeOrder } from "../src/content/kitchen";
 import { rooms, roomOrder } from "../src/content/rooms";
 import { roomQuests } from "../src/content/quests";
 import { initialProgress, readProgress, storageKey, transition, currentMode, type Action, type Progress } from "../src/lib/progress";
-import { challengeFor } from "../src/content/challenges";
 import { remaining } from "../src/lib/engagement";
 import { appVersion } from "../src/lib/version";
 
@@ -33,7 +32,6 @@ export default function Chores() {
   const mode = currentMode(progress);
   const quest = roomQuests[room][mode];
   const done = progress.lastCompleted;
-  const challenge = challengeFor(room, mode);
   const timer = active ? session?.timer : undefined;
   const milliseconds = timer ? remaining(timer, now || Date.now()) : 0;
   const seconds = Math.ceil(milliseconds / 1000);
@@ -57,11 +55,10 @@ export default function Chores() {
     if (action.type === "complete" || action.type === "already-done") setFinished(true);
     if (action.type === "room") setChoosingRoom(false);
   }
-  const engagementControl = <details className="nudge engagement-settings"><summary>Make it engaging{progress.engagement.timer || progress.engagement.challenge ? " · On" : ""}</summary>
-    <label className="engagement-option"><input type="checkbox" checked={progress.engagement.timer} onChange={e => act({ type: "engagement", key: "timer", value: e.target.checked })} /><span><strong>Five-minute start</strong><span className="mode-description">Give it five minutes. You don’t need to finish the room in that time.</span></span></label>
-    <label className="engagement-option"><input type="checkbox" checked={progress.engagement.challenge} onChange={e => act({ type: "engagement", key: "challenge", value: e.target.checked })} /><span><strong>{challenge.title}</strong><span className="mode-description">{challenge.text}</span></span></label>
-    <p className="boundary">Use either, both or neither. Your choices are remembered.</p>
-  </details>;
+  const timerControl = <label className="timer-option">
+    <input type="checkbox" checked={progress.engagement.timer} onChange={e => act({ type: "engagement", key: "timer", value: e.target.checked })} />
+    <span><strong>Five-minute start</strong><span className="mode-description">Give it five minutes. You don’t need to finish the room in that time.</span></span>
+  </label>;
   const date = (at: string) => new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "short" });
   return <main className="shell">
     <header className="brand"><span className="brand-mark" aria-hidden="true">f.</span><span>Flow State</span></header>
@@ -88,7 +85,6 @@ export default function Chores() {
             <div className="actions"><button className="secondary" onClick={() => act({ type: "continue" })}>Continue</button><button className="secondary" onClick={() => act({ type: "pause" })}>Pause</button></div>
           </>}
         </div>}
-        {progress.engagement.challenge && <aside className="challenge"><h2>{challenge.title}</h2><p>{challenge.text}</p><button className="quiet" onClick={() => act({ type: "engagement", key: "challenge", value: false })}>Drop the challenge</button></aside>}
         <ol className="stages" aria-label="Your route">{quest.stages.map((stage, index) => <li key={stage.title}><span className="stage-number" aria-hidden="true">{index + 1}</span><span>{stage.title}</span></li>)}</ol>
         <details className="nudge" key={`${room}-${mode}`}><summary>Need a nudge?</summary>
           {quest.stages.map(stage => <div className="guidance" key={stage.title}><h2>{stage.title}</h2><p>{stage.guidance}</p><p className="feedback">{stage.feedback}</p></div>)}
@@ -112,7 +108,7 @@ export default function Chores() {
         </div> : <>
           <fieldset className="modes"><legend>What fits today?</legend>{modeOrder.map(id => <label className={`mode ${progress.selected === id ? "selected" : ""}`} key={id}><input type="radio" name="mode" value={id} checked={progress.selected === id} onChange={() => act({ type: "select", mode: id })} /><span><strong>{roomQuests[room][id].name}</strong><span className="mode-description">{roomQuests[room][id].description}</span></span></label>)}</fieldset>
           <div className="victory preview"><h2>Your finish line</h2><p>{rooms[room].victory[mode]}</p></div>
-          {engagementControl}
+          {timerControl}
           <button className="primary wide" onClick={() => act({ type: "start" })}>Start {quest.name}</button>
         </>}
         <div className="secondary-actions"><button className="quiet" onClick={() => act({ type: "already-done", at: new Date().toISOString() })}>Already done</button><button className="quiet" onClick={() => act({ type: "skip" })}>Skip for now</button></div>

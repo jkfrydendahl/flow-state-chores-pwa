@@ -51,7 +51,7 @@ export function readProgress(raw: string | null, now = Date.now()): Progress {
     }
     if (value.version !== 2) return state;
     const prefs = object(value.engagement);
-    for (const key of ["timer", "challenge", "hideTimer"] as const) {
+    for (const key of ["timer", "hideTimer"] as const) {
       if (typeof prefs[key] === "boolean") state.engagement[key] = prefs[key];
     }
     if (isMode(value.selected)) state.selected = value.selected;

@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {initialProgress,readProgress,transition} from '../src/lib/progress.ts';
 import {remaining,fiveMinutes,readTimer} from '../src/lib/engagement.ts';
-import {challengeFor} from '../src/content/challenges.ts';
 import {roomOrder} from '../src/content/rooms.ts';
 const timed = () => transition(transition(initialProgress(), {type:'engagement',key:'timer',value:true}), {type:'start'},1000);
 test('quiet default and existing records do not start timers',()=>{
@@ -10,7 +9,7 @@ test('quiet default and existing records do not start timers',()=>{
  const raw=JSON.parse(JSON.stringify(old));delete raw.engagement;
  const state=transition(readProgress(JSON.stringify(raw)),{type:'start'},1000);
  assert.equal(state.sessions.kitchen?.timer,undefined);
- assert.equal(state.engagement.challenge,false);
+
 });
 test('deadline survives reload and expiry does not finish or advance the quest',()=>{
  const state=readProgress(JSON.stringify(timed()),400000);
@@ -37,13 +36,11 @@ test('pause freezes time; resume preserves remaining time and independent room t
 test('preferences persist; finishing early removes the timer with the session',()=>{
  let state=timed();
  state=transition(state,{type:'engagement',key:'hideTimer',value:true});
- state=transition(state,{type:'engagement',key:'challenge',value:true});
  state=readProgress(JSON.stringify(state));
- assert.equal(state.engagement.hideTimer,true);assert.equal(state.engagement.challenge,true);
+ assert.equal(state.engagement.hideTimer,true);
  state=transition(state,{type:'complete',at:'2026-09-06T12:00:00Z'});
  assert.equal(state.sessions.kitchen,undefined);assert.equal(state.lastCompleted?.mode,'minimal');
 });
-test('invalid timer data is ignored and challenges cover every mode and room',()=>{
+test('invalid timer data is ignored',()=>{
  for(const value of [null,{}, {remainingMs:-1,endsAt:null},{remainingMs:fiveMinutes+1,endsAt:0},{remainingMs:0,endsAt:'bad'}]) assert.equal(readTimer(value),undefined);
- for(const room of roomOrder) for(const mode of ['minimal','photoshoot','tidy'] as const) assert.ok(challengeFor(room,mode).text);
 });

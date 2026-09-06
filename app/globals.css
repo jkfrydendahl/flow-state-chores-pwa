@@ -63,11 +63,11 @@ footer p { margin-top: 12px; }
 @media (min-width: 760px) { .shell { padding-top: 44px; } .brand { margin-bottom: 50px; } }
 @media (max-width: 360px) { .shell { padding-inline: 16px; } .mode { padding: 14px; } .actions { grid-template-columns: 1fr; } }
 
-.engagement-settings { margin: 20px 0; }
-.engagement-option { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; cursor: pointer; }
-.engagement-option input { width: 20px; height: 20px; flex-shrink: 0; margin-top: 4px; accent-color: var(--accent); }
-.start-timer, .challenge { margin: 20px 0; padding: 18px; border: 1px solid var(--line); border-radius: 14px; }
+.timer-option { display: flex; align-items: flex-start; gap: 14px; padding: 18px; margin: 20px 0; border: 1px solid var(--line); border-radius: 14px; background: var(--soft); cursor: pointer; }
+.timer-option:focus-within { outline: 3px solid #bd651b; outline-offset: 4px; }
+.timer-option input { width: 20px; height: 20px; flex-shrink: 0; margin-top: 4px; accent-color: var(--accent); }
+.start-timer { margin: 20px 0; padding: 18px; border: 1px solid var(--line); border-radius: 14px; }
 .timer-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
 .timer-digits { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
 .timer-remove { margin-left: 20px; }
-.challenge p, .start-timer p { margin-bottom: 0; }
+.start-timer p { margin-bottom: 0; }

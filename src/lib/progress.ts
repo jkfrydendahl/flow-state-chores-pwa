@@ -1,10 +1,12 @@
+import { quietDefaults, startTimer, pauseTimer, resumeTimer, readTimer, type StartTimer, type Engagement } from "./engagement.ts";
 import { rooms, roomOrder, type Room } from "../content/rooms.ts";
 export type Mode = "minimal" | "photoshoot" | "tidy";
-export type Session = { mode: Mode; status: "active" | "paused" };
+export type Session = { mode: Mode; status: "active" | "paused"; timer?: StartTimer };
 export type Completion = { room: Room; mode: Mode; at: string };
 export type Progress = {
   version: 2; selected: Mode; room: Room; queue: Room[];
   activeRoom: Room | null;
+  engagement: Engagement;
   sessions: Partial<Record<Room, Session>>;
   completions: Partial<Record<Room, Partial<Record<Mode, string>>>>;
   lastCompleted: Completion | null;
@@ -12,7 +14,7 @@ export type Progress = {
 // Retain the original key so existing installations can migrate in place.
 export const storageKey = "flow-state-chores.progress.v1";
 export function initialProgress(): Progress {
-  return { version: 2, selected: "minimal", room: "kitchen", queue: [...roomOrder], activeRoom: null, sessions: {}, completions: {}, lastCompleted: null };
+  return { version: 2, selected: "minimal", room: "kitchen", queue: [...roomOrder], engagement: { ...quietDefaults }, activeRoom: null, sessions: {}, completions: {}, lastCompleted: null };
 }
 export const isRoom = (v: unknown): v is Room => typeof v === "string" && Object.hasOwn(rooms, v);
 const isMode = (v: unknown): v is Mode => v === "minimal" || v === "photoshoot" || v === "tidy";
@@ -21,7 +23,7 @@ const object = (v: unknown): Record<string, unknown> => v !== null && typeof v =
 const legacyRoom = (v: unknown): Room | undefined => v === undefined ? "kitchen" : roomOrder.find(id => id === v || rooms[id].name === v);
 export const currentMode = (state: Progress): Mode => state.sessions[state.room]?.mode ?? state.selected;
 
-export function readProgress(raw: string | null): Progress {
+export function readProgress(raw: string | null, now = Date.now()): Progress {
   const state = initialProgress();
   if (!raw) return state;
   try {
@@ -48,6 +50,10 @@ export function readProgress(raw: string | null): Progress {
       return state;
     }
     if (value.version !== 2) return state;
+    const prefs = object(value.engagement);
+    for (const key of ["timer", "challenge", "hideTimer"] as const) {
+      if (typeof prefs[key] === "boolean") state.engagement[key] = prefs[key];
+    }
     if (isMode(value.selected)) state.selected = value.selected;
     const queue = Array.isArray(value.queue) ? value.queue.filter(isRoom) : [];
     state.queue = [...new Set([...queue, ...roomOrder])];
@@ -55,7 +61,8 @@ export function readProgress(raw: string | null): Progress {
     for (const room of roomOrder) {
       const session = object(object(value.sessions)[room]);
       if (isMode(session.mode) && (session.status === "paused" || session.status === "active")) {
-        state.sessions[room] = { mode: session.mode, status: "paused" };
+        const timer = readTimer(session.timer);
+        state.sessions[room] = { mode: session.mode, status: "paused", ...(timer ? { timer: value.activeRoom === room ? timer : pauseTimer(timer, now) } : {}) };
       }
       const completed = object(object(value.completions)[room]);
       for (const mode of ["minimal", "photoshoot", "tidy"] as const) {
@@ -73,6 +80,7 @@ export function readProgress(raw: string | null): Progress {
   } catch { return state; }
 }
 export type Action =
+  | { type: "engagement"; key: keyof Engagement; value: boolean } | { type: "continue" }
   | { type: "select"; mode: Mode } | { type: "room"; room: Room }
   | { type: "start" } | { type: "pause" } | { type: "resume" } | { type: "leave" }
   | { type: "skip" } | { type: "already-done"; at: string } | { type: "complete"; at: string };
@@ -84,19 +92,25 @@ function finish(state: Progress, room: Room, mode: Mode, at: string): Progress {
     completions: { ...state.completions, [room]: { ...state.completions[room], [mode]: at } },
     lastCompleted: { room, mode, at } };
 }
-export function transition(state: Progress, action: Action): Progress {
+export function transition(state: Progress, action: Action, now = Date.now()): Progress {
   const room = state.room;
   const session = state.sessions[room];
   switch (action.type) {
+    case "engagement": return { ...state, engagement: { ...state.engagement, [action.key]: action.value } };
+    case "continue": {
+      if (!state.activeRoom) return state;
+      const { timer, ...rest } = state.sessions[state.activeRoom]!;
+      return { ...state, sessions: { ...state.sessions, [state.activeRoom]: rest } };
+    }
     case "select": return state.activeRoom || session ? state : { ...state, selected: action.mode };
     case "room": return state.activeRoom ? state : { ...state, room: action.room };
-    case "start": return state.activeRoom || session ? state : { ...state, activeRoom: room, sessions: { ...state.sessions, [room]: { mode: state.selected, status: "active" } } };
+    case "start": return state.activeRoom || session ? state : { ...state, activeRoom: room, sessions: { ...state.sessions, [room]: { mode: state.selected, status: "active", ...(state.engagement.timer ? { timer: startTimer(now) } : {}) } } };
     case "pause": {
       if (!state.activeRoom) return state;
       const active = state.activeRoom;
-      return { ...state, room: active, activeRoom: null, sessions: { ...state.sessions, [active]: { ...state.sessions[active]!, status: "paused" } } };
+      return { ...state, room: active, activeRoom: null, sessions: { ...state.sessions, [active]: { ...state.sessions[active]!, status: "paused", ...(state.sessions[active]?.timer ? { timer: pauseTimer(state.sessions[active]!.timer!, now) } : {}) } } };
     }
-    case "resume": return state.activeRoom || !session ? state : { ...state, activeRoom: room, selected: session.mode, sessions: { ...state.sessions, [room]: { ...session, status: "active" } } };
+    case "resume": return state.activeRoom || !session ? state : { ...state, activeRoom: room, selected: session.mode, sessions: { ...state.sessions, [room]: { ...session, status: "active", ...(session.timer ? { timer: resumeTimer(session.timer, now) } : {}) } } };
     case "leave": {
       if (state.activeRoom) return state;
       const sessions = { ...state.sessions }; delete sessions[room];

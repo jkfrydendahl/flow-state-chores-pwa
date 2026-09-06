@@ -4,10 +4,13 @@ import { modeOrder } from "../src/content/kitchen";
 import { rooms, roomOrder } from "../src/content/rooms";
 import { roomQuests } from "../src/content/quests";
 import { initialProgress, readProgress, storageKey, transition, currentMode, type Action, type Progress } from "../src/lib/progress";
+import { challengeFor } from "../src/content/challenges";
+import { remaining } from "../src/lib/engagement";
 import { appVersion } from "../src/lib/version";
 
 export default function Chores() {
   const [progress, setProgress] = useState<Progress>(initialProgress);
+  const [now, setNow] = useState(0);
   const [ready, setReady] = useState(false);
   const [storageWarning, setStorageWarning] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -30,9 +33,23 @@ export default function Chores() {
   const mode = currentMode(progress);
   const quest = roomQuests[room][mode];
   const done = progress.lastCompleted;
+  const challenge = challengeFor(room, mode);
+  const timer = active ? session?.timer : undefined;
+  const milliseconds = timer ? remaining(timer, now || Date.now()) : 0;
+  const seconds = Math.ceil(milliseconds / 1000);
+  const timerText = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+  useEffect(() => {
+    if (!timer) return;
+    const tick = () => setNow(Date.now());
+    tick();
+    const interval = window.setInterval(tick, 1000);
+    document.addEventListener("visibilitychange", tick);
+    return () => { window.clearInterval(interval); document.removeEventListener("visibilitychange", tick); };
+  }, [timer]);
   useEffect(() => { if (interacted.current && !choosingRoom) title.current?.focus(); }, [active, finished, room, choosingRoom]);
   function act(action: Action) {
     interacted.current = true;
+    setNow(Date.now());
     const next = transition(progress, action);
     setProgress(next);
     try { localStorage.setItem(storageKey, JSON.stringify(next)); setStorageWarning(false); }
@@ -40,6 +57,11 @@ export default function Chores() {
     if (action.type === "complete" || action.type === "already-done") setFinished(true);
     if (action.type === "room") setChoosingRoom(false);
   }
+  const engagementControl = <details className="nudge engagement-settings"><summary>Make it engaging{progress.engagement.timer || progress.engagement.challenge ? " · On" : ""}</summary>
+    <label className="engagement-option"><input type="checkbox" checked={progress.engagement.timer} onChange={e => act({ type: "engagement", key: "timer", value: e.target.checked })} /><span><strong>Five-minute start</strong><span className="mode-description">Give it five minutes. You don’t need to finish the room in that time.</span></span></label>
+    <label className="engagement-option"><input type="checkbox" checked={progress.engagement.challenge} onChange={e => act({ type: "engagement", key: "challenge", value: e.target.checked })} /><span><strong>{challenge.title}</strong><span className="mode-description">{challenge.text}</span></span></label>
+    <p className="boundary">Use either, both or neither. Your choices are remembered.</p>
+  </details>;
   const date = (at: string) => new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "short" });
   return <main className="shell">
     <header className="brand"><span className="brand-mark" aria-hidden="true">f.</span><span>Flow State</span></header>
@@ -55,6 +77,18 @@ export default function Chores() {
       <section aria-labelledby="quest-title">
         <p className="eyebrow">{rooms[room].name}</p><h1 id="quest-title" ref={title} tabIndex={-1}>{quest.name}</h1>
         <div className="entry"><p className="eyebrow">Start here</p><p>{quest.entry}</p></div>
+        {timer && <div className="start-timer">
+          {milliseconds > 0 ? <>
+            <div className="timer-row"><h2>Five-minute start</h2>{!progress.engagement.hideTimer && <span className="timer-digits" role="timer" aria-label="Time remaining" aria-live="off">{timerText}</span>}</div>
+            <p className="boundary">Just a starting stretch. Your finish line stays the same.</p>
+            <button className="quiet" onClick={() => act({ type: "engagement", key: "hideTimer", value: !progress.engagement.hideTimer })}>{progress.engagement.hideTimer ? "Show timer" : "Hide timer"}</button>
+            <button className="quiet timer-remove" onClick={() => act({ type: "continue" })}>Continue without timer</button>
+          </> : <>
+            <div role="status"><h2>Five minutes are up.</h2><p>Keep going if it feels right, or pause here.</p></div>
+            <div className="actions"><button className="secondary" onClick={() => act({ type: "continue" })}>Continue</button><button className="secondary" onClick={() => act({ type: "pause" })}>Pause</button></div>
+          </>}
+        </div>}
+        {progress.engagement.challenge && <aside className="challenge"><h2>{challenge.title}</h2><p>{challenge.text}</p><button className="quiet" onClick={() => act({ type: "engagement", key: "challenge", value: false })}>Drop the challenge</button></aside>}
         <ol className="stages" aria-label="Your route">{quest.stages.map((stage, index) => <li key={stage.title}><span className="stage-number" aria-hidden="true">{index + 1}</span><span>{stage.title}</span></li>)}</ol>
         <details className="nudge" key={`${room}-${mode}`}><summary>Need a nudge?</summary>
           {quest.stages.map(stage => <div className="guidance" key={stage.title}><h2>{stage.title}</h2><p>{stage.guidance}</p><p className="feedback">{stage.feedback}</p></div>)}
@@ -78,6 +112,7 @@ export default function Chores() {
         </div> : <>
           <fieldset className="modes"><legend>What fits today?</legend>{modeOrder.map(id => <label className={`mode ${progress.selected === id ? "selected" : ""}`} key={id}><input type="radio" name="mode" value={id} checked={progress.selected === id} onChange={() => act({ type: "select", mode: id })} /><span><strong>{roomQuests[room][id].name}</strong><span className="mode-description">{roomQuests[room][id].description}</span></span></label>)}</fieldset>
           <div className="victory preview"><h2>Your finish line</h2><p>{rooms[room].victory[mode]}</p></div>
+          {engagementControl}
           <button className="primary wide" onClick={() => act({ type: "start" })}>Start {quest.name}</button>
         </>}
         <div className="secondary-actions"><button className="quiet" onClick={() => act({ type: "already-done", at: new Date().toISOString() })}>Already done</button><button className="quiet" onClick={() => act({ type: "skip" })}>Skip for now</button></div>

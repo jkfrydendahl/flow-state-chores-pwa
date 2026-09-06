@@ -10,7 +10,7 @@ A device-only household PWA. Choose a room and **Minimal plain**, **Photoshoot**
 - **Already done** records the displayed mode for the selected room. It does not imply that deeper modes are complete.
 - Each room can keep one paused quest. Pause to choose another room, then return and resume. Leaving a quest unfinished clears only that room's paused quest and does not record completion.
 - The last-used mode is remembered. A paused room retains its own mode.
-- No scores, streaks, timers, notifications or automatically started follow-on quests.
+- No scores, streaks, notifications or automatically started follow-on quests.
 - Victory conditions live in `src/content/rooms.ts`; practical guidance lives separately in `src/content/quests.ts` and `src/content/kitchen.ts`.
 - English interface. The three mode names are preserved exactly.
 
@@ -51,10 +51,18 @@ The post-build script precaches the app and its runtime assets. Each build has i
 
 ## App version
 
-The version shown under **About this app** is defined in `src/lib/version.ts` using `YY.M.D.N` without leading zeroes (for example, `26.9.5.3`). Increment N for additional releases on the same date, or start at 1 on a new release date. It is source-controlled rather than calculated from the current date or a page load, so an offline copy reports the version it actually contains. This display version is separate from the npm package's semantic version.
+The version shown under **About this app** is defined in `src/lib/version.ts` using `YY.M.D.N` without leading zeroes (for example, `26.9.6.1`). Increment N for additional releases on the same date, or start at 1 on a new release date. It is source-controlled rather than calculated from the current date or a page load, so an offline copy reports the version it actually contains. This display version is separate from the npm package's semantic version.
 
 ## Verification
 
 Automated progress checks cover legacy migration, independent paused rooms, full rotation, skipping, manual selection, mode-specific completions and recovery from malformed storage. The production build checks all room content and TypeScript.
 
 For phone checks: choose rooms and modes; expand guidance; pause two rooms and reload; resume one; finish or mark already done; skip a suggestion; install and reopen offline. The completion screen should name the completed room even after the rotation advances. No phone or browser visual testing is implied by a successful build.
+
+## Optional engagement
+
+Expand **Make it engaging** before starting a quest. The five-minute start and the relevant room/mode challenge are independently optional and off by default. Choices are remembered on the device. Minimal plain gets a known-home rhythm, Photoshoot gets a concrete first visible win, and Tidy whitie gets a section-by-section route challenge.
+
+The timer starts with the quest. Hide its digits or continue without it at any time. Pausing freezes its remaining time; resuming continues that same timer. Active timers use a saved deadline so reloads and background throttling do not restart five minutes. At expiry, the app offers Continue or Pause without marking anything complete. Continue dismisses the timer for this quest. Completion still requires the existing victory condition.
+
+There is no alarm or background notification: if the phone is locked, the prompt appears when the app is active again. Browser retention of local data is still required. A timer already started with a paused quest keeps its own remaining time; the timer preference applies to new quests.

@@ -57,7 +57,7 @@ export default function Chores() {
   }
   const timerControl = <label className="timer-option">
     <input type="checkbox" checked={progress.engagement.timer} onChange={e => act({ type: "engagement", key: "timer", value: e.target.checked })} />
-    <span><strong>Five-minute start</strong><span className="mode-description">Give it five minutes. You don’t need to finish the room in that time.</span></span>
+    <span><strong>Five-minute Challenge</strong><span className="mode-description">Give it five minutes. You don’t need to finish the room in that time.</span></span>
   </label>;
   const date = (at: string) => new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "short" });
   return <main className="shell">
@@ -76,7 +76,7 @@ export default function Chores() {
         <div className="entry"><p className="eyebrow">Start here</p><p>{quest.entry}</p></div>
         {timer && <div className="start-timer">
           {milliseconds > 0 ? <>
-            <div className="timer-row"><h2>Five-minute start</h2>{!progress.engagement.hideTimer && <span className="timer-digits" role="timer" aria-label="Time remaining" aria-live="off">{timerText}</span>}</div>
+            <div className="timer-row"><h2>Five-minute Challenge</h2>{!progress.engagement.hideTimer && <span className="timer-digits" role="timer" aria-label="Time remaining" aria-live="off">{timerText}</span>}</div>
             <p className="boundary">Just a starting stretch. Your finish line stays the same.</p>
             <button className="quiet" onClick={() => act({ type: "engagement", key: "hideTimer", value: !progress.engagement.hideTimer })}>{progress.engagement.hideTimer ? "Show timer" : "Hide timer"}</button>
             <button className="quiet timer-remove" onClick={() => act({ type: "continue" })}>Continue without timer</button>

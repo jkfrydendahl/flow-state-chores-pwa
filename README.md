@@ -65,4 +65,10 @@ The **Five-minute Challenge** checkbox is directly on the room-selection screen,
 
 The timer starts with the quest. Hide its digits or continue without it at any time. Pausing freezes its remaining time; resuming continues that same timer. Active timers use a saved deadline so reloads and background throttling do not restart five minutes. At expiry, the app offers Continue or Pause without marking anything complete. Continue dismisses the timer for this quest. Completion still requires the existing victory condition.
 
-There is no alarm or background notification: if the phone is locked, the prompt appears when the app is active again. Browser retention of local data is still required. A timer already started with a paused quest keeps its own remaining time; the timer preference applies to new quests.
+There is no background notification: if the phone is locked, the prompt appears when the app is active again. Browser retention of local data is still required. A timer already started with a paused quest keeps its own remaining time; the timer preference applies to new quests.
+
+## Chime and screen awake
+
+A single gentle two-tone chime marks timer expiry while the app is visible. Start/Resume unlocks browser audio; after a reload the app may show Enable chime for a fresh user interaction. Volume, silent mode and browser audio policies still apply. An expiry is acknowledged in saved timer state so reloads or resuming an expired timer do not repeatedly chime.
+
+The single Keep screen awake during the challenge checkbox sits below the timer choice and is remembered across rooms. It is off by default for existing and new users. The app requests a screen wake lock only while a timer is running, and releases it on pause, expiry, completion, timer dismissal or navigation away. It tries to reacquire when returning to the visible app. The device can deny or release a wake lock (for example in low-power mode); the app shows a status if unavailable. This does not enable locked-screen/background alarms. Real-device sound and wake-lock behavior require phone testing.

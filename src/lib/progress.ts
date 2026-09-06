@@ -51,7 +51,7 @@ export function readProgress(raw: string | null, now = Date.now()): Progress {
     }
     if (value.version !== 2) return state;
     const prefs = object(value.engagement);
-    for (const key of ["timer", "hideTimer"] as const) {
+    for (const key of ["timer", "hideTimer", "keepAwake"] as const) {
       if (typeof prefs[key] === "boolean") state.engagement[key] = prefs[key];
     }
     if (isMode(value.selected)) state.selected = value.selected;
@@ -80,7 +80,7 @@ export function readProgress(raw: string | null, now = Date.now()): Progress {
   } catch { return state; }
 }
 export type Action =
-  | { type: "engagement"; key: keyof Engagement; value: boolean } | { type: "continue" }
+  | { type: "engagement"; key: keyof Engagement; value: boolean } | { type: "continue" } | { type: "timer-notified" }
   | { type: "select"; mode: Mode } | { type: "room"; room: Room }
   | { type: "start" } | { type: "pause" } | { type: "resume" } | { type: "leave" }
   | { type: "skip" } | { type: "already-done"; at: string } | { type: "complete"; at: string };
@@ -96,6 +96,11 @@ export function transition(state: Progress, action: Action, now = Date.now()): P
   const room = state.room;
   const session = state.sessions[room];
   switch (action.type) {
+    case "timer-notified": {
+      if (!state.activeRoom || !state.sessions[state.activeRoom]?.timer) return state;
+      const active = state.activeRoom;
+      return { ...state, sessions: { ...state.sessions, [active]: { ...state.sessions[active]!, timer: { ...state.sessions[active]!.timer!, notified: true } } } };
+    }
     case "engagement": return { ...state, engagement: { ...state.engagement, [action.key]: action.value } };
     case "continue": {
       if (!state.activeRoom) return state;

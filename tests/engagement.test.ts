@@ -44,3 +44,27 @@ test('preferences persist; finishing early removes the timer with the session',(
 test('invalid timer data is ignored',()=>{
  for(const value of [null,{}, {remainingMs:-1,endsAt:null},{remainingMs:fiveMinutes+1,endsAt:0},{remainingMs:0,endsAt:'bad'}]) assert.equal(readTimer(value),undefined);
 });
+
+test('screen-awake preference persists across rooms and old records default off',()=>{
+ let state=initialProgress();
+ assert.equal(state.engagement.keepAwake,false);
+ state=transition(state,{type:'engagement',key:'keepAwake',value:true});
+ state=transition(state,{type:'room',room:'bathroom'});
+ state=readProgress(JSON.stringify(state));
+ assert.equal(state.engagement.keepAwake,true);
+ const old=JSON.parse(JSON.stringify(state));delete old.engagement.keepAwake;
+ assert.equal(readProgress(JSON.stringify(old)).engagement.keepAwake,false);
+});
+test('expiry acknowledgment survives pause/resume and reload without completing',()=>{
+ let state=transition(timed(),{type:'timer-notified'},400000);
+ state=transition(state,{type:'pause'},400000);
+ state=readProgress(JSON.stringify(state));
+ state=transition(state,{type:'resume'},500000);
+ assert.equal(state.sessions.kitchen?.timer?.notified,true);
+ assert.equal(state.lastCompleted,null);
+ assert.equal(remaining(state.sessions.kitchen!.timer!,500000),0);
+ state=transition(state,{type:'complete',at:'2026-09-06T12:00:00Z'});
+ state=transition(state,{type:'room',room:'kitchen'});
+ state=transition(state,{type:'start'},600000);
+ assert.equal(state.sessions.kitchen?.timer?.notified,undefined);
+});

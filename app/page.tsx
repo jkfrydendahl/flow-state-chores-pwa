@@ -5,6 +5,7 @@ import { rooms, roomOrder } from "../src/content/rooms";
 import { roomQuests } from "../src/content/quests";
 import { initialProgress, readProgress, storageKey, transition, currentMode, type Action, type Progress } from "../src/lib/progress";
 import { remaining } from "../src/lib/engagement";
+import { useTimerFeedback } from "../src/hooks/useTimerFeedback";
 import { appVersion } from "../src/lib/version";
 
 export default function Chores() {
@@ -34,6 +35,18 @@ export default function Chores() {
   const done = progress.lastCompleted;
   const timer = active ? session?.timer : undefined;
   const milliseconds = timer ? remaining(timer, now || Date.now()) : 0;
+  const feedback = useTimerFeedback(Boolean(timer && milliseconds > 0 && progress.engagement.keepAwake));
+  const chimeGuard = useRef<string | null>(null);
+  useEffect(() => {
+    if (!timer || milliseconds > 0 || timer.notified || document.visibilityState !== "visible") return;
+    const key = `${room}:${timer.endsAt}`;
+    if (chimeGuard.current === key) return;
+    chimeGuard.current = key;
+    feedback.playChime();
+    const next = transition(progress, { type: "timer-notified" });
+    setProgress(next);
+    try { localStorage.setItem(storageKey, JSON.stringify(next)); } catch { setStorageWarning(true); }
+  }, [timer, milliseconds, room, progress, feedback.playChime]);
   const seconds = Math.ceil(milliseconds / 1000);
   const timerText = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
   useEffect(() => {
@@ -46,6 +59,10 @@ export default function Chores() {
   }, [timer]);
   useEffect(() => { if (interacted.current && !choosingRoom) title.current?.focus(); }, [active, finished, room, choosingRoom]);
   function act(action: Action) {
+    if (action.type === "start" || action.type === "resume") {
+      if (action.type === "resume" ? session?.timer : progress.engagement.timer) feedback.enableChime();
+      chimeGuard.current = null;
+    }
     interacted.current = true;
     setNow(Date.now());
     const next = transition(progress, action);
@@ -55,9 +72,13 @@ export default function Chores() {
     if (action.type === "complete" || action.type === "already-done") setFinished(true);
     if (action.type === "room") setChoosingRoom(false);
   }
+  const wakeControl = <label className="timer-option wake-option">
+    <input type="checkbox" checked={progress.engagement.keepAwake} onChange={e => act({ type: "engagement", key: "keepAwake", value: e.target.checked })} />
+    <span><strong>Keep screen awake during the challenge</strong><span className="mode-description">Remembered across rooms. Ends when the timer ends or you pause.</span></span>
+  </label>;
   const timerControl = <label className="timer-option">
     <input type="checkbox" checked={progress.engagement.timer} onChange={e => act({ type: "engagement", key: "timer", value: e.target.checked })} />
-    <span><strong>Five-minute Challenge</strong><span className="mode-description">Give it five minutes. You don’t need to finish the room in that time.</span></span>
+    <span><strong>Five-minute Challenge</strong><span className="mode-description">Give it five minutes. A gentle chime marks the end; you don’t need to finish the room.</span></span>
   </label>;
   const date = (at: string) => new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "short" });
   return <main className="shell">
@@ -78,6 +99,8 @@ export default function Chores() {
           {milliseconds > 0 ? <>
             <div className="timer-row"><h2>Five-minute Challenge</h2>{!progress.engagement.hideTimer && <span className="timer-digits" role="timer" aria-label="Time remaining" aria-live="off">{timerText}</span>}</div>
             <p className="boundary">Just a starting stretch. Your finish line stays the same.</p>
+            {progress.engagement.keepAwake && <p className="boundary" role="status">{feedback.wakeStatus === "active" ? "Keeping the screen awake." : feedback.wakeStatus === "unavailable" ? "Your browser couldn’t keep the screen awake. It may lock as usual." : "Requesting screen awake…"}</p>}
+            {!feedback.soundReady && <button className="quiet" onClick={feedback.enableChime}>Enable chime</button>}
             <button className="quiet" onClick={() => act({ type: "engagement", key: "hideTimer", value: !progress.engagement.hideTimer })}>{progress.engagement.hideTimer ? "Show timer" : "Hide timer"}</button>
             <button className="quiet timer-remove" onClick={() => act({ type: "continue" })}>Continue without timer</button>
           </> : <>
@@ -103,12 +126,14 @@ export default function Chores() {
         {session ? <div className="paused-card">
           <h2>{quest.name} · Paused</h2><p>Continue where you left off. Skip what you’ve already done.</p>
           <ol className="stages" aria-label="Your saved route">{quest.stages.map((stage, index) => <li key={stage.title}><span className="stage-number" aria-hidden="true">{index + 1}</span><span>{stage.title}</span></li>)}</ol>
+          {wakeControl}
           <button className="primary wide" onClick={() => act({ type: "resume" })}>Resume {quest.name}</button>
           <button className="quiet" onClick={() => act({ type: "leave" })}>Leave unfinished and choose again</button>
         </div> : <>
           <fieldset className="modes"><legend>What fits today?</legend>{modeOrder.map(id => <label className={`mode ${progress.selected === id ? "selected" : ""}`} key={id}><input type="radio" name="mode" value={id} checked={progress.selected === id} onChange={() => act({ type: "select", mode: id })} /><span><strong>{roomQuests[room][id].name}</strong><span className="mode-description">{roomQuests[room][id].description}</span></span></label>)}</fieldset>
           <div className="victory preview"><h2>Your finish line</h2><p>{rooms[room].victory[mode]}</p></div>
           {timerControl}
+          {wakeControl}
           <button className="primary wide" onClick={() => act({ type: "start" })}>Start {quest.name}</button>
         </>}
         <div className="secondary-actions"><button className="quiet" onClick={() => act({ type: "already-done", at: new Date().toISOString() })}>Already done</button><button className="quiet" onClick={() => act({ type: "skip" })}>Skip for now</button></div>

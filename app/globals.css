@@ -71,3 +71,38 @@ footer p { margin-top: 12px; }
 .timer-digits { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
 .timer-remove { margin-left: 20px; }
 .start-timer p { margin-bottom: 0; }
+
+/* Compact phone layout: retain readable copy and generous tap targets. */
+@media (max-width: 600px) {
+  .shell { padding: max(12px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
+  .brand { gap: 8px; margin-bottom: 18px; font-size: .9375rem; }
+  .brand-mark { width: 28px; height: 28px; border-radius: 9px; font-size: 23px; }
+  .eyebrow { margin-bottom: 4px; }
+  h1 { font-size: 2rem; line-height: 1.12; margin-bottom: 14px; }
+  .intro { margin-bottom: 18px; }
+  .room-toggle { margin: -8px 0 8px; }
+  .modes { margin-bottom: 14px; }
+  legend { margin-bottom: 8px; }
+  .mode { gap: 10px; padding: 10px 12px; border-radius: 11px; margin-bottom: 6px; }
+  .mode:last-child { margin-bottom: 0; }
+  .mode-description { margin-top: 2px; line-height: 1.4; }
+  .victory { padding-left: 12px; margin: 16px 0 12px; }
+  .preview { margin: 14px 0; }
+  .timer-option { gap: 10px; padding: 10px 12px; margin: 10px 0; border-radius: 11px; }
+  .timer-option input { margin: 2px 0 0; }
+  .timer-option strong { display: block; line-height: 1.35; }
+  .primary, .secondary { min-height: 48px; padding: 10px 14px; border-radius: 11px; }
+  .quiet { min-height: 44px; padding: 9px 0; }
+  .actions { gap: 8px; margin-top: 16px; }
+  .secondary-actions { gap: 12px; margin-top: 4px; }
+  .entry, .paused-card { padding: 14px 16px; border-radius: 12px; }
+  .entry > p:last-child { font-size: 1rem; }
+  .stages { margin: 14px 0 12px; }
+  .stages li { gap: 10px; padding: 8px 0; }
+  .start-timer { margin: 14px 0; padding: 12px; }
+  .boundary { margin: 12px 0; }
+  .room-picker { margin-bottom: 14px; }
+  footer { margin-top: 24px; padding-top: 12px; }
+  .finish { padding-top: 12px; min-height: 320px; }
+  .finish-mark { width: 44px; height: 44px; margin-bottom: 18px; }
+}

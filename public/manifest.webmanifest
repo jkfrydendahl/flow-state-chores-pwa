@@ -1,5 +1,5 @@
 {
-  "id": "/", "name": "Flow State Chores", "short_name": "Flow State",
+  "id": "/", "name": "Flow State Chores", "short_name": "Flow State Chores",
   "description": "One room. A clear finish.", "start_url": "/", "scope": "/",
   "display": "standalone", "background_color": "#f5f8fa", "theme_color": "#173d50", "lang": "en",
   "icons": [

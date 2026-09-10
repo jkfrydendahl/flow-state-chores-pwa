@@ -82,7 +82,7 @@ export default function Chores() {
   </label>;
   const date = (at: string) => new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "short" });
   return <main className="shell">
-    <header className="brand"><span className="brand-mark" aria-hidden="true">f.</span><span>Flow State</span></header>
+    <header className="brand"><span className="brand-mark" aria-hidden="true">f.</span><span>Flow State Chores</span></header>
     {storageWarning && <p className="notice" role="status">Progress can’t be saved on this device right now. You can keep going, but this session may be lost when you close the app.</p>}
     {!ready ? <p role="status">Opening your quests…</p> : finished && done ? (
       <section aria-labelledby="finished-title" className="finish">
